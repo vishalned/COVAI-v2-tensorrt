@@ -13,18 +13,18 @@ from tensorflow.python.keras import backend as K
 
 
 
-config = tf.compat.v1.ConfigProto()
-config.gpu_options.per_process_gpu_memory_fraction = 0.2
-Session = tf.compat.v1.Session(config=config)
-tf.compat.v1.keras.backend.set_session(Session)
+# config = tf.compat.v1.ConfigProto()
+# config.gpu_options.per_process_gpu_memory_fraction = 0.2
+# Session = tf.compat.v1.Session(config=config)
+# tf.compat.v1.keras.backend.set_session(Session)
 
-gpus = tf.config.experimental.list_physical_devices('GPU')
-if gpus:
-    try:
-        for gpu in gpus:
-            tf.config.experimental.set_memory_growth(gpu, True)
-    except RuntimeError as e:
-        print(e)
+# gpus = tf.config.experimental.list_physical_devices('GPU')
+# if gpus:
+#     try:
+#         for gpu in gpus:
+#             tf.config.experimental.set_memory_growth(gpu, True)
+#     except RuntimeError as e:
+#         print(e)
 
 uid = sys.argv[1]
 date = sys.argv[2]
@@ -50,9 +50,9 @@ start = time.time()
 
 
 start_ggo = time.time()
-#ggo_prediction(IMG_DIR, uid, date)
-t1 = threading.Thread(target = ggo_prediction, kwargs = {'img_path' : IMG_DIR, 'uid' : uid, 'date' : date})
-t1.start()
+ggo_prediction(IMG_DIR, uid, date)
+# t1 = threading.Thread(target = ggo_prediction, kwargs = {'img_path' : IMG_DIR, 'uid' : uid, 'date' : date})
+# t1.start()
 end_ggo = time.time()
 print("ggo prediction complete in ", (end_ggo - start_ggo), " seconds")
 
@@ -60,12 +60,12 @@ print("ggo prediction complete in ", (end_ggo - start_ggo), " seconds")
 #device.reset()
 
 
-start_lobe = time.time()
-#lobe_prediction(IMG_PATH, uid, date)
-t2 = threading.Thread(target = lobe_prediction, kwargs = {'img' : IMG_PATH, 'uid' : uid, 'date' : date})
-t2.start()
-end_lobe = time.time()
-print("lobe segmentation complete in ",(end_lobe - start_lobe), " seconds")
+# start_lobe = time.time()
+# #lobe_prediction(IMG_PATH, uid, date)
+# t2 = threading.Thread(target = lobe_prediction, kwargs = {'img' : IMG_PATH, 'uid' : uid, 'date' : date})
+# t2.start()
+# end_lobe = time.time()
+# print("lobe segmentation complete in ",(end_lobe - start_lobe), " seconds")
 
 t1.join()
 t2.join()
