@@ -183,10 +183,13 @@ class Neural_Network:
                                     shuffle=False, iterations=None)
             # Run prediction process with Keras predict
             pred_list = []
+            print(type(dataGen))
+            print(len(dataGen))
+#            print(dataGen.shape)
             for batch in dataGen:
                 print('processing a batch')
                 output = concrete_func(tf.constant(batch))
-                print(output)
+                #print(output)
                 pred_batch = output['conv3d_18']
                 print('output shape: ',pred_batch.shape)
                 # pred_batch = self.model.predict_on_batch(batch)
@@ -219,6 +222,9 @@ class Neural_Network:
                                     shuffle=False, iterations=None)
             # Run prediction process with Keras predict
             pred_list = []
+            print(type(dataGen))
+            print(len(dataGen))
+            print(dataGen.shape)
             for batch in dataGen:
                 pred_batch = self.model.predict_on_batch(batch)
                 pred_list.append(pred_batch)

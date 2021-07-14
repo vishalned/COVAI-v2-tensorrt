@@ -13,18 +13,17 @@ from tensorflow.python.keras import backend as K
 
 
 
-# config = tf.compat.v1.ConfigProto()
-# config.gpu_options.per_process_gpu_memory_fraction = 0.2
-# Session = tf.compat.v1.Session(config=config)
-# tf.compat.v1.keras.backend.set_session(Session)
-
-# gpus = tf.config.experimental.list_physical_devices('GPU')
-# if gpus:
-#     try:
-#         for gpu in gpus:
-#             tf.config.experimental.set_memory_growth(gpu, True)
-#     except RuntimeError as e:
-#         print(e)
+config = tf.compat.v1.ConfigProto()
+config.gpu_options.per_process_gpu_memory_fraction = 0.5
+Session = tf.compat.v1.Session(config=config)
+tf.compat.v1.keras.backend.set_session(Session)
+gpus = tf.config.experimental.list_physical_devices('GPU')
+if gpus:
+    try:
+        for gpu in gpus:
+            tf.config.experimental.set_memory_growth(gpu, True)
+    except RuntimeError as e:
+        print(e)
 
 uid = sys.argv[1]
 date = sys.argv[2]

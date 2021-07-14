@@ -164,6 +164,7 @@ class NIFTI_interface(Abstract_IO):
         nifti = nib.Nifti1Image(pred, spacing)
         # Save segmentation to disk
         pred_file = str(sample.index)
+        print(os.path.join(output_path, 'processed_ggo.nii.gz'))
         nib.save(nifti, os.path.join(output_path, 'processed_ggo.nii.gz'))
 
     #---------------------------------------------#
