@@ -36,7 +36,7 @@ def ggo_prediction(img_path, uid, date):
 
 
     path_model = './ggo_seg/scripts/models/model.hdf5'
-    path_preds = '/opt/back-end/Neos-MEVN-backend/uploads/'+uid+'/'+date+'/nifti'
+    path_preds = '/home/ubuntu/uploads/'+uid+'/'+date+'/nifti'
     os.environ["CUDA_VISIBLE_DEVICES"] = str(0)
     print('output of ggo at ',path_preds)
     #-----------------------------------------------------#

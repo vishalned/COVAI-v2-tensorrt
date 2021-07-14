@@ -40,9 +40,13 @@ miscnn/evaluation/detailed_validation.py
 miscnn/evaluation/leave_one_out.py
 miscnn/evaluation/split_validation.py
 miscnn/neural_network/__init__.py
+miscnn/neural_network/build_engine.py
 miscnn/neural_network/data_generator.py
+miscnn/neural_network/engine.py
+miscnn/neural_network/inference.py
 miscnn/neural_network/metrics.py
 miscnn/neural_network/model.py
+miscnn/neural_network/model_keras_trt.py
 miscnn/neural_network/architecture/__init__.py
 miscnn/neural_network/architecture/abstract_architecture.py
 miscnn/neural_network/architecture/unet/__init__.py

@@ -1,7 +1,7 @@
 import nibabel as nib
 import numpy as np
 from ggo_seg.scripts.predict import *
-from lung_lobe import *
+#from lung_lobe import *
 import time
 import threading
 import dicom2nifti
@@ -32,15 +32,15 @@ date = sys.argv[2]
 
 input_folder = '../uploads/'+uid+'/'+date+'/scans/'
 output_folder = '../uploads/'+uid+'/'+date+'/nifti/'
-# exists = os.path.isdir(output_folder)
-# if not exists:
-#     os.mkdir(output_folder)
-# try:
-#     print("processing dcm to nii")
-#     dicom2nifti.convert_directory(input_folder, output_folder)
-# except:
-#     pass
-# os.rename((output_folder + os.listdir(output_folder)[0]) , output_folder + "unprocessed.nii.gz")
+exists = os.path.isdir(output_folder)
+if not exists:
+    os.mkdir(output_folder)
+try:
+    print("processing dcm to nii")
+    dicom2nifti.convert_directory(input_folder, output_folder)
+except:
+    pass
+os.rename((output_folder + os.listdir(output_folder)[0]) , output_folder + "unprocessed.nii.gz")
 
 IMG_DIR = output_folder
 IMG_PATH = output_folder + 'unprocessed.nii.gz'
@@ -67,8 +67,8 @@ print("ggo prediction complete in ", (end_ggo - start_ggo), " seconds")
 # end_lobe = time.time()
 # print("lobe segmentation complete in ",(end_lobe - start_lobe), " seconds")
 
-t1.join()
-t2.join()
+#t1.join()
+#t2.join()
 print("starting post processing")
 start_pp = time.time()
 img_ggo  = nib.load(output_folder + 'processed_ggo.nii.gz')

@@ -28,6 +28,18 @@ import numpy as np
 from miscnn.neural_network.metrics import dice_soft, tversky_loss
 from miscnn.neural_network.architecture.unet.standard import Architecture
 from miscnn.neural_network.data_generator import DataGenerator
+import numpy as np
+import nibabel as nib
+from scipy import ndimage
+#import engine as eng
+#import inference as inf
+import keras
+import tensorflow as tf
+from tensorflow.python.compiler.tensorrt import trt_convert as trt
+
+
+
+
 
 #-----------------------------------------------------#
 #            Neural Network (model) class             #
@@ -152,6 +164,49 @@ class Neural_Network:
         activation_output (boolean):    Parameter which decides, if model output (activation function, normally softmax) will
                                         be saved/outputed (if FALSE) or if the resulting class label (argmax) should be outputed.
     """
+        
+    def predict_trt(self, sample_list, return_output=False,
+                    activation_output=False):
+
+        root = tf.saved_model.load('./model_tf.trt')
+        concrete_func = root.signatures['serving_default']
+        print('completed loading files')
+
+
+            # Initialize result array for direct output
+        if return_output : results = []
+        # Iterate over each sample
+        for sample in sample_list:
+            # Initialize Keras Data Generator for generating batches
+            dataGen = DataGenerator([sample], self.preprocessor,
+                                    training=False, validation=False,
+                                    shuffle=False, iterations=None)
+            # Run prediction process with Keras predict
+            pred_list = []
+            for batch in dataGen:
+                print('processing a batch')
+                output = concrete_func(tf.constant(batch))
+                print(output)
+                pred_batch = output['conv3d_18']
+                print('output shape: ',pred_batch.shape)
+                # pred_batch = self.model.predict_on_batch(batch)
+                pred_list.append(pred_batch)
+            pred_seg = np.concatenate(pred_list, axis=0)
+            # Postprocess prediction
+            sampleObj = self.preprocessor.cache.pop(sample)
+            pred_seg = self.preprocessor.postprocessing(sampleObj, pred_seg,
+                                                        activation_output)
+            # Backup predicted segmentation
+            if return_output : results.append(pred_seg)
+            else :
+                sampleObj.add_prediction(pred_seg)
+                self.preprocessor.data_io.save_prediction(sampleObj)
+            # Clean up temporary files if necessary
+            if self.preprocessor.prepare_batches or self.preprocessor.prepare_subfunctions:
+                self.preprocessor.data_io.batch_cleanup()
+        # Output predictions results if direct output modus is active
+        if return_output : return results
+
     def predict(self, sample_list, return_output=False,
                 activation_output=False):
         # Initialize result array for direct output

@@ -31,14 +31,13 @@ from miscnn.neural_network.data_generator import DataGenerator
 import numpy as np
 import nibabel as nib
 from scipy import ndimage
-import engine as eng
-import inference as inf
+#import engine as eng
+#import inference as inf
 import keras
-import tensorrt as trt 
+import tensorflow as tf
+from tensorflow.python.compiler.tensorrt import trt_convert as trt
 
-TRT_LOGGER = trt.Logger(trt.Logger.WARNING)
-trt_runtime = trt.Runtime(TRT_LOGGER)
-serialized_plan_fp32 = 'model.plan'
+
 
 
 
@@ -165,16 +164,16 @@ class Neural_Network:
         activation_output (boolean):    Parameter which decides, if model output (activation function, normally softmax) will
                                         be saved/outputed (if FALSE) or if the resulting class label (argmax) should be outputed.
     """
+        
     def predict_trt(self, sample_list, return_output=False,
-            activation_output=False):
+                    activation_output=False):
 
-        engine = eng.load_engine(trt_runtime, serialized_plan_fp32)
-        print('loaded engine')
-        inputs, outputs, bindings, stream = inf.allocate_buffers(engine)
-        print('allocated buffers')
-        
-        
-        # Initialize result array for direct output
+        root = tf.saved_model.load('./model_tf.trt')
+        concrete_func = root.signatures['serving_default']
+        print('completed loading files')
+
+
+            # Initialize result array for direct output
         if return_output : results = []
         # Iterate over each sample
         for sample in sample_list:
@@ -185,16 +184,13 @@ class Neural_Network:
             # Run prediction process with Keras predict
             pred_list = []
             for batch in dataGen:
-
-                out = inf.do_inference(engine.create_execution_context(), bindings, batch, inputs, outputs, stream, batch_size = 1)
-                print(out[0].shape)
-                print(out[1].shape)
-                output = out[1].reshape((1, 160, 160, 80, 4))
-                print('output shape from main', output.shape) 
-
-
+                print('processing a batch')
+                output = concrete_func(tf.constant(batch))
+                print(output)
+                pred_batch = output['conv3d_18']
+                print('output shape: ',pred_batch.shape)
                 # pred_batch = self.model.predict_on_batch(batch)
-                pred_list.append(output)
+                pred_list.append(pred_batch)
             pred_seg = np.concatenate(pred_list, axis=0)
             # Postprocess prediction
             sampleObj = self.preprocessor.cache.pop(sample)
@@ -203,14 +199,13 @@ class Neural_Network:
             # Backup predicted segmentation
             if return_output : results.append(pred_seg)
             else :
-              sampleObj.add_prediction(pred_seg)
-              self.preprocessor.data_io.save_prediction(sampleObj)
+                sampleObj.add_prediction(pred_seg)
+                self.preprocessor.data_io.save_prediction(sampleObj)
             # Clean up temporary files if necessary
             if self.preprocessor.prepare_batches or self.preprocessor.prepare_subfunctions:
                 self.preprocessor.data_io.batch_cleanup()
         # Output predictions results if direct output modus is active
         if return_output : return results
-
 
     def predict(self, sample_list, return_output=False,
                 activation_output=False):
